@@ -1,9 +1,6 @@
 import { CssBaseline } from "@mui/material";
-import {
-  alpha,
-  createTheme,
-  ThemeProvider as MUIThemeProvider,
-} from "@mui/material/styles";
+import { alpha, ThemeProvider as MUIThemeProvider } from "@mui/material/styles";
+import createTheme from "@mui/material/styles/createTheme";
 import customizeComponents from "./customizations";
 
 const PRIMARY = {

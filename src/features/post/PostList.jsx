@@ -28,7 +28,7 @@ function PostList({ userId }) {
             variant="outlined"
             size="small"
             loading={isLoading}
-            onClick={() => setPage((page) => page++)}
+            onClick={() => setPage((page) => page + 1)}
             disabled={Boolean(totalPosts) && posts.length >= totalPosts}
           >
             Load more

@@ -1,14 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import apiService from "../../app/apiService";
 import { COMMENTS_PER_POST } from "../../app/config";
 
 const initialState = {
   isLoading: false,
   error: null,
-  commentsById: {},
   commentsByPost: {},
-  currentPageByPost: {},
   totalCommentsByPost: {},
+  currentPageByPost: {},
+  commentsById: {},
 };
 
 const slice = createSlice({
@@ -23,10 +24,7 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-    createCommentSuccess(state, action) {
-      state.isLoading = false;
-      state.error = null;
-    },
+
     getCommentsSuccess(state, action) {
       state.isLoading = false;
       state.error = "";
@@ -41,25 +39,22 @@ const slice = createSlice({
       state.totalCommentsByPost[postId] = count;
       state.currentPageByPost[postId] = page;
     },
+
+    createCommentSuccess(state, action) {
+      state.isLoading = false;
+      state.error = null;
+    },
+
+    sendCommentReactionSuccess(state, action) {
+      state.isLoading = false;
+      state.error = null;
+      const { commentId, reactions } = action.payload;
+      state.commentsById[commentId].reactions = reactions;
+    },
   },
 });
 
-export const createComment =
-  ({ postId, page = 1, limit = COMMENTS_PER_POST }) =>
-  async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const params = { page: page, limit: limit };
-      const response = await apiService.post("/comments", {
-        params,
-      });
-      dispatch(
-        slice.actions.createCommentSuccess({ ...response.data, postId, page })
-      );
-    } catch (error) {
-      dispatch(slice.actions.hasError(error.message));
-    }
-  };
+export default slice.reducer;
 
 export const getComments =
   ({ postId, page = 1, limit = COMMENTS_PER_POST }) =>
@@ -82,6 +77,24 @@ export const getComments =
       );
     } catch (error) {
       dispatch(slice.actions.hasError(error.message));
+      toast.error(error.message);
+    }
+  };
+
+export const createComment =
+  ({ postId, content }) =>
+  async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await apiService.post("/comments", {
+        content,
+        postId,
+      });
+      dispatch(slice.actions.createCommentSuccess(response.data));
+      dispatch(getComments({ postId }));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error.message));
+      toast.error(error.message);
     }
   };
 
@@ -103,7 +116,6 @@ export const sendCommentReaction =
       );
     } catch (error) {
       dispatch(slice.actions.hasError(error.message));
+      toast.error(error.message);
     }
   };
-
-export default slice.reducer;

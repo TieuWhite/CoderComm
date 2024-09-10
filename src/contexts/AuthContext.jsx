@@ -1,5 +1,5 @@
-import { Logout } from "@mui/icons-material";
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useReducer, useEffect } from "react";
+import { useSelector } from "react-redux";
 import apiService from "../app/apiService";
 import isValidToken from "../utils/jwt";
 
@@ -11,19 +11,26 @@ const initialState = {
 
 const INITIALIZE = "AUTH.INITIALIZE";
 const LOGIN_SUCCESS = "AUTH.LOGIN_SUCCESS";
-const REGISTER_SUCCESS = "AUTH.REGISTER_SUCESS";
+const REGISTER_SUCCESS = "AUTH.REGISTER_SUCCESS";
 const LOGOUT = "AUTH.LOGOUT";
 const UPDATE_PROFILE = "AUTH.UPDATE_PROFILE";
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case INITIALIZE:
+      const { isAuthenticated, user } = action.payload;
+      return {
+        ...state,
+        isInitialized: true,
+        isAuthenticated,
+        user,
+      };
     case LOGIN_SUCCESS:
       return {
         ...state,
         isAuthenticated: true,
         user: action.payload.user,
       };
-
     case REGISTER_SUCCESS:
       return {
         ...state,
@@ -36,19 +43,47 @@ const reducer = (state, action) => {
         isAuthenticated: false,
         user: null,
       };
-    case INITIALIZE:
+    case UPDATE_PROFILE:
+      const {
+        name,
+        avatarUrl,
+        coverUrl,
+        aboutMe,
+        city,
+        country,
+        company,
+        jobTitle,
+        facebookLink,
+        instagramLink,
+        linkedinLink,
+        twitterLink,
+        friendCount,
+        postCount,
+      } = action.payload;
       return {
         ...state,
-        isInitialized: true,
-        isAuthenticated: action.payload.isAuthenticated,
-        user: action.payload.user,
+        user: {
+          ...state.user,
+          name,
+          avatarUrl,
+          coverUrl,
+          aboutMe,
+          city,
+          country,
+          company,
+          jobTitle,
+          facebookLink,
+          instagramLink,
+          linkedinLink,
+          twitterLink,
+          friendCount,
+          postCount,
+        },
       };
     default:
       return state;
   }
 };
-
-const AuthContext = createContext({ ...initialState });
 
 const setSession = (accessToken) => {
   if (accessToken) {
@@ -60,8 +95,11 @@ const setSession = (accessToken) => {
   }
 };
 
+const AuthContext = createContext({ ...initialState });
+
 function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const updatedProfile = useSelector((state) => state.user.updatedProfile);
 
   useEffect(() => {
     const initialize = async () => {
@@ -103,6 +141,11 @@ function AuthProvider({ children }) {
     initialize();
   }, []);
 
+  useEffect(() => {
+    if (updatedProfile)
+      dispatch({ type: UPDATE_PROFILE, payload: updatedProfile });
+  }, [updatedProfile]);
+
   const login = async ({ email, password }, callback) => {
     const response = await apiService.post("/auth/login", { email, password });
     const { user, accessToken } = response.data;
@@ -116,10 +159,14 @@ function AuthProvider({ children }) {
     callback();
   };
 
-  const register = async ({ email, password, name }, callback) => {
-    const response = await apiService.post("/users", { email, password, name });
-    const { user, accessToken } = response.data;
+  const register = async ({ name, email, password }, callback) => {
+    const response = await apiService.post("/users", {
+      name,
+      email,
+      password,
+    });
 
+    const { user, accessToken } = response.data;
     setSession(accessToken);
     dispatch({
       type: REGISTER_SUCCESS,
@@ -129,12 +176,21 @@ function AuthProvider({ children }) {
     callback();
   };
 
-  const logout = (callback) => {
-    setSession(null), dispatch({ type: LOGOUT }), callback();
+  const logout = async (callback) => {
+    setSession(null);
+    dispatch({ type: LOGOUT });
+    callback();
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        ...state,
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

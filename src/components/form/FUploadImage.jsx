@@ -1,5 +1,6 @@
 import { useFormContext, Controller } from "react-hook-form";
 import { FormHelperText } from "@mui/material";
+import UploadSingleFile from "./FUploadingSingleFile";
 
 function FUploadImage({ name, ...other }) {
   const { control } = useFormContext();

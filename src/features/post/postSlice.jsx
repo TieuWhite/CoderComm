@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import apiService from "../../app/apiService";
+import { POSTS_PER_PAGE } from "../../app/config";
+import { cloudinaryUpload } from "../../utils/cloudinary";
+import { getCurrentUserProfile } from "../user/userSlice";
 
 const initialState = {
   isLoading: false,
@@ -58,20 +62,7 @@ const slice = createSlice({
   },
 });
 
-export const createPost =
-  ({ content, image }) =>
-  async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await apiService.post("/posts", {
-        content,
-        image,
-      });
-      dispatch(slice.actions.createPostSuccess(response.data));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error.mesage));
-    }
-  };
+export default slice.reducer;
 
 export const getPosts =
   ({ userId, page = 1, limit = POSTS_PER_PAGE }) =>
@@ -86,6 +77,26 @@ export const getPosts =
       dispatch(slice.actions.getPostsSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error.message));
+      toast.error(error.message);
+    }
+  };
+
+export const createPost =
+  ({ content, image }) =>
+  async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const imageUrl = await cloudinaryUpload(image);
+      const response = await apiService.post("/posts", {
+        content,
+        image: imageUrl,
+      });
+      dispatch(slice.actions.createPostSuccess(response.data));
+      toast.success("Post successfully");
+      dispatch(getCurrentUserProfile());
+    } catch (error) {
+      dispatch(slice.actions.hasError(error.message));
+      toast.error(error.message);
     }
   };
 
@@ -110,5 +121,3 @@ export const sendPostReaction =
       toast.error(error.message);
     }
   };
-
-export default slice.reducer;
