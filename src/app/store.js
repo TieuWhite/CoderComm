@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import postReducer from "../features/post/postSlice";
 import userReducer from "../features/user/userSlice";
-import commentReducer from "../features/comment/CommentSlice";
+import commentReducer from "../features/comment/commentSlice";
 import friendReducer from "../features/friend/friendSlice";
 
 const rootReducer = combineReducers({

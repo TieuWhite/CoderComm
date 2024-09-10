@@ -1,6 +1,9 @@
 import { CssBaseline } from "@mui/material";
-import { alpha, ThemeProvider as MUIThemeProvider } from "@mui/material/styles";
-import createTheme from "@mui/material/styles/createTheme";
+import {
+  alpha,
+  createTheme,
+  ThemeProvider as MUIThemeProvider,
+} from "@mui/material/styles";
 import customizeComponents from "./customizations";
 
 const PRIMARY = {
@@ -48,29 +51,27 @@ const GREY = {
   500_56: alpha("#919EAB", 0.56),
   500_80: alpha("#919EAB", 0.8),
 };
-
-function ThemeProvider({ children }) {
-  const themeOptions = {
-    palette: {
-      primary: PRIMARY,
-      secondary: SECONDARY,
-      success: SUCCESS,
-      text: { primary: GREY[800], secondary: GREY[600], disabled: GREY[500] },
-      background: { paper: "#fff", default: "#fff", neutral: GREY[200] },
-      action: {
-        active: GREY[600],
-        hover: GREY[500_8],
-        selected: GREY[500_16],
-        disabled: GREY[500_80],
-        disabledBackground: GREY[500_24],
-        focus: GREY[500_24],
-        hoverOpacity: 0.08,
-        disabledOpacity: 0.48,
-      },
+const themeOptions = {
+  palette: {
+    primary: PRIMARY,
+    secondary: SECONDARY,
+    success: SUCCESS,
+    text: { primary: GREY[800], secondary: GREY[600], disabled: GREY[500] },
+    background: { paper: "#fff", default: "#fff", neutral: GREY[200] },
+    action: {
+      active: GREY[600],
+      hover: GREY[500_8],
+      selected: GREY[500_16],
+      disabled: GREY[500_80],
+      disabledBackground: GREY[500_24],
+      focus: GREY[500_24],
+      hoverOpacity: 0.08,
+      disabledOpacity: 0.48,
     },
-    shape: { borderRadius: 8 },
-  };
-
+  },
+  shape: { borderRadius: 8 },
+};
+function ThemeProvider({ children }) {
   const theme = createTheme(themeOptions);
   theme.components = customizeComponents(theme);
 
