@@ -53,6 +53,11 @@ const slice = createSlice({
       state.currentPagePosts.unshift(newPost._id);
     },
 
+    deletePostSuccess(state, action) {
+      state.isLoading = false;
+      state.error = null;
+    },
+
     sendPostReactionSuccess(state, action) {
       state.isLoading = false;
       state.error = null;
@@ -81,25 +86,6 @@ export const getPosts =
     }
   };
 
-export const createPost =
-  ({ content, image }) =>
-  async (dispatch) => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const imageUrl = await cloudinaryUpload(image);
-      const response = await apiService.post("/posts", {
-        content,
-        image: imageUrl,
-      });
-      dispatch(slice.actions.createPostSuccess(response.data));
-      toast.success("Post successfully");
-      dispatch(getCurrentUserProfile());
-    } catch (error) {
-      dispatch(slice.actions.hasError(error.message));
-      toast.error(error.message);
-    }
-  };
-
 export const sendPostReaction =
   ({ postId, emoji }) =>
   async (dispatch) => {
@@ -121,3 +107,36 @@ export const sendPostReaction =
       toast.error(error.message);
     }
   };
+
+export const createPost =
+  ({ content, image }) =>
+  async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const imageUrl = await cloudinaryUpload(image);
+      const response = await apiService.post("/posts", {
+        content,
+        image: imageUrl,
+      });
+      dispatch(slice.actions.createPostSuccess(response.data));
+      toast.success("Post successfully");
+      dispatch(getCurrentUserProfile());
+    } catch (error) {
+      dispatch(slice.actions.hasError(error.message));
+      toast.error(error.message);
+    }
+  };
+
+export const deletePost = (targetPostId) => async (dispatch) => {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await apiService.delete(`/posts/${targetPostId}`);
+    toast.success("Successfully delete post");
+    dispatch(slice.actions.deletePostSuccess(...response.data, targetPostId));
+
+    return response;
+  } catch (error) {
+    dispatch(slice.actions.hasError(error.message));
+    toast.error(error.message);
+  }
+};

@@ -12,12 +12,16 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import { fDate } from "../../utils/formatTime";
 
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import DeleteIcon from "@mui/icons-material/Delete";
 import PostReaction from "./PostReaction";
 import CommentForm from "../comment/CommentForm";
 import CommentList from "../comment/CommentList";
+import { deletePost } from "./postSlice";
+import { useDispatch } from "react-redux";
 
-function PostCard({ post }) {
+function PostCard({ post, postId, targetPostId }) {
+  const dispatch = useDispatch();
+
   return (
     <Card>
       <CardHeader
@@ -45,8 +49,8 @@ function PostCard({ post }) {
           </Typography>
         }
         action={
-          <IconButton>
-            <MoreVertIcon sx={{ fontSize: 30 }} />
+          <IconButton onClick={() => dispatch(deletePost(targetPostId))}>
+            <DeleteIcon sx={{ fontSize: 30 }} />
           </IconButton>
         }
       />
