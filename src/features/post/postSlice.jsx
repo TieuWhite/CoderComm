@@ -53,6 +53,11 @@ const slice = createSlice({
       state.currentPagePosts.unshift(newPost._id);
     },
 
+    updatePostSuccess(state, action) {
+      state.isLoading = false;
+      state.error = null;
+    },
+
     deletePostSuccess(state, action) {
       state.isLoading = false;
       state.error = null;
@@ -64,10 +69,18 @@ const slice = createSlice({
       const { postId, reactions } = action.payload;
       state.postsById[postId].reactions = reactions;
     },
+    togglePostEdit(state, action) {
+      const postId = action.payload;
+      state.postsById[postId].isEditing = !state.postsById[postId].isEditing;
+    },
   },
 });
 
 export default slice.reducer;
+
+export const togglePostEdit = (postId) => (dispatch) => {
+  dispatch(slice.actions.togglePostEdit(postId));
+};
 
 export const getPosts =
   ({ userId, page = 1, limit = POSTS_PER_PAGE }) =>
@@ -127,14 +140,38 @@ export const createPost =
     }
   };
 
-export const deletePost = (targetPostId) => async (dispatch) => {
+export const updatePost = (post, user, content, image) => async (dispatch) => {
   dispatch(slice.actions.startLoading());
   try {
-    const response = await apiService.delete(`/posts/${targetPostId}`);
-    toast.success("Successfully delete post");
-    dispatch(slice.actions.deletePostSuccess(...response.data, targetPostId));
+    if (user._id == post.author._id) {
+      const imageUrl = await cloudinaryUpload(image);
+      const response = await apiService.put(`/posts/${post._id}`, {
+        content,
+        image: imageUrl,
+      });
+      dispatch(slice.actions.updatePostSuccess(response.data));
+      toast.success("Post successfully updated");
+    } else {
+      toast.error("You're not the author");
+    }
+  } catch (error) {
+    dispatch(slice.actions.hasError(error.message));
+    toast.error(error.message);
+    console.log(error);
+  }
+};
 
-    return response;
+export const deletePost = (post, user) => async (dispatch) => {
+  dispatch(slice.actions.startLoading());
+  try {
+    if (user._id == post.author._id) {
+      const response = await apiService.delete(`/posts/${post._id}`);
+      toast.success("Successfully delete post");
+      dispatch(slice.actions.deletePostSuccess(...response.data, post._id));
+      return response;
+    } else {
+      toast.error("You're not the author");
+    }
   } catch (error) {
     dispatch(slice.actions.hasError(error.message));
     toast.error(error.message);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   Box,
   Link,
@@ -8,18 +8,49 @@ import {
   Typography,
   CardHeader,
   IconButton,
+  alpha,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { fDate } from "../../utils/formatTime";
-
+import BuildIcon from "@mui/icons-material/Build";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PostReaction from "./PostReaction";
 import CommentForm from "../comment/CommentForm";
 import CommentList from "../comment/CommentList";
-import { deletePost } from "./postSlice";
-import { useDispatch } from "react-redux";
+import { deletePost, togglePostEdit, updatePost } from "./postSlice";
+import { useDispatch, useSelector } from "react-redux";
+import useAuth from "../../hooks/useAuth";
+import PostForm from "./PostForm";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import { FormProvider, useForm } from "react-hook-form";
+import { FTextField, FUploadImage } from "../../components/form";
 
-function PostCard({ post, postId, targetPostId }) {
+const yupSchema = Yup.object().shape({
+  content: Yup.string().required("Content is required"),
+});
+
+const defaultValues = {
+  content: "",
+  image: null,
+};
+
+function PostCard({ post }) {
+  const methods = useForm({
+    resolver: yupResolver(yupSchema),
+    defaultValues,
+  });
+  const {
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { isSubmitting },
+  } = methods;
+
+  const { user } = useAuth();
+  const isEditing = useSelector(
+    (state) => state.post.postsById[post._id].isEditing
+  );
   const dispatch = useDispatch();
 
   return (
@@ -49,26 +80,56 @@ function PostCard({ post, postId, targetPostId }) {
           </Typography>
         }
         action={
-          <IconButton onClick={() => dispatch(deletePost(targetPostId))}>
-            <DeleteIcon sx={{ fontSize: 30 }} />
-          </IconButton>
+          <Stack direction="row" spacing={1}>
+            <IconButton onClick={() => dispatch(deletePost(post, user))}>
+              <DeleteIcon sx={{ fontSize: 30 }} />
+            </IconButton>
+            <IconButton onClick={() => dispatch(togglePostEdit(post._id))}>
+              <BuildIcon sx={{ fontSize: 30 }} />
+            </IconButton>
+          </Stack>
         }
       />
 
       <Stack spacing={2} sx={{ p: 3 }}>
-        <Typography>{post.content}</Typography>
+        {isEditing ? (
+          <Card sx={{ p: 3 }}>
+            <FormProvider methods={methods}>
+              <Stack spacing={2}>
+                <FTextField
+                  name="content"
+                  multiline
+                  fullWidth
+                  rows={4}
+                  placeholder="Share what you are thinking here..."
+                  sx={{
+                    "& fieldset": {
+                      borderWidth: `1px !important`,
+                      borderColor: alpha("#919EAB", 0.32),
+                    },
+                  }}
+                />
 
-        {post.image && (
-          <Box
-            sx={{
-              borderRadius: 2,
-              overflow: "hidden",
-              height: 300,
-              "& img": { objectFit: "cover", width: 1, height: 1 },
-            }}
-          >
-            <img src={post.image} alt="post" />
-          </Box>
+                <FUploadImage name="image" accept="image/*" maxSize={3145728} />
+              </Stack>
+            </FormProvider>
+          </Card>
+        ) : (
+          <>
+            <Typography>{post.content}</Typography>
+            {post.image && (
+              <Box
+                sx={{
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  height: 300,
+                  "& img": { objectFit: "cover", width: 1, height: 1 },
+                }}
+              >
+                <img src={post.image} alt="post" />
+              </Box>
+            )}
+          </>
         )}
 
         <PostReaction post={post} />

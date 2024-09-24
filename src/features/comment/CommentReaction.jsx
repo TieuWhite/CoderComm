@@ -1,19 +1,36 @@
-import { IconButton, Stack, Typography } from "@mui/material";
+import { Box, IconButton, Stack, Typography } from "@mui/material";
 import ThumbDownAltRoundedIcon from "@mui/icons-material/ThumbDownAltRounded";
 import ThumbUpRoundedIcon from "@mui/icons-material/ThumbUpRounded";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { sendCommentReaction } from "./commentSlice";
+import { deleteComment, sendCommentReaction } from "./commentSlice";
+import DeleteIcon from "@mui/icons-material/Delete";
+import useAuth from "../../hooks/useAuth";
 
 function CommentReaction({ comment }) {
   const dispatch = useDispatch();
+
+  const { user } = useAuth();
 
   const handleClick = (emoji) => {
     dispatch(sendCommentReaction({ commentId: comment._id, emoji }));
   };
 
   return (
-    <Stack direction="row" alignItems="center">
+    <Stack
+      direction="row"
+      alignItems="center"
+      display="flex"
+      justifyContent="space-between"
+    >
+      <IconButton
+        onClick={() => {
+          dispatch(deleteComment(comment, user));
+        }}
+      >
+        <DeleteIcon />
+      </IconButton>
+
       <IconButton
         onClick={() => handleClick("like")}
         sx={{ color: "primary.main" }}

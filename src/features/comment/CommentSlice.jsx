@@ -45,6 +45,11 @@ const slice = createSlice({
       state.error = null;
     },
 
+    deleteCommentSuccess(state, action) {
+      state.isLoading = false;
+      state.error = null;
+    },
+
     sendCommentReactionSuccess(state, action) {
       state.isLoading = false;
       state.error = null;
@@ -97,6 +102,22 @@ export const createComment =
       toast.error(error.message);
     }
   };
+
+export const deleteComment = (comment, user) => async (dispatch) => {
+  dispatch(slice.actions.startLoading());
+  try {
+    if (comment.author._id == user._id) {
+      await apiService.delete(`/comments/${comment._id}`);
+      dispatch(slice.actions.deleteCommentSuccess());
+      toast.success("successfully deleted comment");
+    } else {
+      toast.error("you are not the author of this comment");
+    }
+  } catch (error) {
+    dispatch(slice.actions.hasError(error.message));
+    toast.error(error.message);
+  }
+};
 
 export const sendCommentReaction =
   ({ commentId, emoji }) =>

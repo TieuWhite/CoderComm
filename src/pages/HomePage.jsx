@@ -8,12 +8,13 @@ import { Box } from "@mui/material";
 import { Card, Container, Tab, Tabs } from "@mui/material";
 import { capitalCase } from "change-case";
 import ProfileCover from "../features/user/ProfileCover";
-
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import BackspaceIcon from "@mui/icons-material/Backspace";
 import { styled } from "@mui/material/styles";
+import OutgoingRequest from "../features/friend/OutgoingRequest";
 
 const TabsWrapperStyle = styled("div")(({ theme }) => ({
   zIndex: 9,
@@ -54,6 +55,11 @@ function HomePage() {
       value: "requests",
       icon: <ContactMailIcon sx={{ fontSize: 24 }} />,
       component: <FriendRequests />,
+    },
+    {
+      value: "outgoing",
+      icon: <BackspaceIcon />,
+      component: <OutgoingRequest />,
     },
     {
       value: "add_friend",

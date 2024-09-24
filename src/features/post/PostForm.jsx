@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import { Box, Card, alpha, Stack } from "@mui/material";
-
 import { FormProvider, FTextField, FUploadImage } from "../../components/form";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -19,8 +18,8 @@ const defaultValues = {
 };
 
 function PostForm() {
+  const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.post);
-
   const methods = useForm({
     resolver: yupResolver(yupSchema),
     defaultValues,
@@ -31,7 +30,6 @@ function PostForm() {
     setValue,
     formState: { isSubmitting },
   } = methods;
-  const dispatch = useDispatch();
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
