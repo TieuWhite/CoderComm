@@ -6,8 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
-
-import Logo from "../components/Logo";
+import Logo from "../components/logo";
 import { Avatar, Divider } from "@mui/material";
 import useAuth from "../hooks/useAuth";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
