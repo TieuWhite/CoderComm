@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 import { Stack, Avatar, TextField, IconButton } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-
 import useAuth from "../../hooks/useAuth";
 import { useDispatch } from "react-redux";
 import { createComment } from "./commentSlice";
