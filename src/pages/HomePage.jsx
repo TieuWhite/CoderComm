@@ -3,7 +3,7 @@ import useAuth from "../hooks/useAuth";
 import Profile from "../features/user/Profile";
 import FriendList from "../features/friend/FriendList";
 import FriendRequests from "../features/friend/FriendRequest";
-import AddFriend from "../features/friend/addFriend";
+import AddFriend from "../features/friend/AddFriend";
 import { Box } from "@mui/material";
 import { Card, Container, Tab, Tabs } from "@mui/material";
 import { capitalCase } from "change-case";
