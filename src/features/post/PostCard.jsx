@@ -20,11 +20,12 @@ import CommentList from "../comment/CommentList";
 import { deletePost, togglePostEdit, updatePost } from "./postSlice";
 import { useDispatch, useSelector } from "react-redux";
 import useAuth from "../../hooks/useAuth";
-import PostForm from "./PostForm";
+import { FormProvider, FTextField, FUploadImage } from "../../components/form";
+import { LoadingButton } from "@mui/lab";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { FormProvider, useForm } from "react-hook-form";
-import { FTextField, FUploadImage } from "../../components/form";
+import { update } from "lodash";
 
 const yupSchema = Yup.object().shape({
   content: Yup.string().required("Content is required"),
@@ -36,6 +37,7 @@ const defaultValues = {
 };
 
 function PostCard({ post }) {
+  const { isLoading } = useSelector((state) => state.post);
   const methods = useForm({
     resolver: yupResolver(yupSchema),
     defaultValues,
@@ -47,11 +49,31 @@ function PostCard({ post }) {
     formState: { isSubmitting },
   } = methods;
 
+  const handleDrop = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+
+      if (file) {
+        setValue(
+          "image",
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        );
+      }
+    },
+    [setValue]
+  );
+
   const { user } = useAuth();
   const isEditing = useSelector(
     (state) => state.post.postsById[post._id].isEditing
   );
   const dispatch = useDispatch();
+
+  const onSubmit = (data) => {
+    dispatch(updatePost(data)).then(() => reset());
+  };
 
   return (
     <Card>
@@ -94,7 +116,7 @@ function PostCard({ post }) {
       <Stack spacing={2} sx={{ p: 3 }}>
         {isEditing ? (
           <Card sx={{ p: 3 }}>
-            <FormProvider methods={methods}>
+            <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
               <Stack spacing={2}>
                 <FTextField
                   name="content"
@@ -110,7 +132,29 @@ function PostCard({ post }) {
                   }}
                 />
 
-                <FUploadImage name="image" accept="image/*" maxSize={3145728} />
+                <FUploadImage
+                  name="image"
+                  accept="image/*"
+                  maxSize={3145728}
+                  onDrop={handleDrop}
+                />
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <LoadingButton
+                    type="submit"
+                    variant="contained"
+                    size="small"
+                    loading={isSubmitting || isLoading}
+                  >
+                    Update
+                  </LoadingButton>
+                </Box>
               </Stack>
             </FormProvider>
           </Card>
