@@ -48,6 +48,7 @@ function PostCard({ post }) {
   const [deleteMenu, setDeleteMenu] = useState(false);
   const [editMenu, setEditMenu] = useState(false);
   //
+
   return (
     <Card>
       <CardHeader
@@ -97,7 +98,10 @@ function PostCard({ post }) {
               >
                 <DialogTitle id="alert-dialog-title">Edit Post</DialogTitle>
                 <DialogContent>
-                  <PostUpdate post={post} />
+                  <PostUpdate
+                    post={post}
+                    onSuccess={() => setEditMenu(false)}
+                  />
                 </DialogContent>
               </Dialog>
 

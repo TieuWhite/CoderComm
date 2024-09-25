@@ -13,7 +13,7 @@ const yupSchema = Yup.object().shape({
   content: Yup.string().required("Content is required"),
 });
 
-function PostUpdate({ post }) {
+function PostUpdate({ post, onSuccess }) {
   const dispatch = useDispatch();
   const { user } = useAuth();
   const { isLoading } = useSelector((state) => state.post);
@@ -22,6 +22,7 @@ function PostUpdate({ post }) {
     resolver: yupResolver(yupSchema),
     defaultValues: post,
   });
+
   const {
     handleSubmit,
     reset,
@@ -46,8 +47,9 @@ function PostUpdate({ post }) {
   );
 
   const onSubmit = (data) => {
-    dispatch(updatePost(data, user, post));
+    dispatch(updatePost(data, post, user));
     reset();
+    onSuccess();
   };
 
   return (

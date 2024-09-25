@@ -132,28 +132,28 @@ export const createPost =
     }
   };
 
-export const updatePost = (post, user, content, image) => async (dispatch) => {
-  dispatch(slice.actions.startLoading());
-  try {
-    if (user._id == post.author._id) {
-      const imageUrl = await cloudinaryUpload(image);
-      const response = await apiService.put(`/posts/${post._id}`, {
-        content,
-        image: imageUrl,
-      });
-      dispatch(slice.actions.updatePostSuccess(response.data));
-      toast.success("Post successfully updated");
-    } else {
-      toast.error("You're not the author");
-      console.log(user._id);
-      console.log(post.author._id);
+export const updatePost =
+  ({ content, image }, post, user) =>
+  async (dispatch) => {
+    dispatch(slice.actions.startLoading());
+    try {
+      if (user._id == post.author._id) {
+        const imageUrl = await cloudinaryUpload(image);
+        const response = await apiService.put(`/posts/${post._id}`, {
+          content,
+          image: imageUrl,
+        });
+        dispatch(slice.actions.updatePostSuccess(response.data));
+        toast.success("Post successfully updated");
+      } else {
+        toast.error("You're not the author");
+      }
+    } catch (error) {
+      dispatch(slice.actions.hasError(error.message));
+      toast.error(error.message);
+      console.log(error);
     }
-  } catch (error) {
-    dispatch(slice.actions.hasError(error.message));
-    toast.error(error.message);
-    console.log(error);
-  }
-};
+  };
 
 export const deletePost = (post, user) => async (dispatch) => {
   dispatch(slice.actions.startLoading());
