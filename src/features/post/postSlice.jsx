@@ -69,18 +69,10 @@ const slice = createSlice({
       const { postId, reactions } = action.payload;
       state.postsById[postId].reactions = reactions;
     },
-    togglePostEdit(state, action) {
-      const postId = action.payload;
-      state.postsById[postId].isEditing = !state.postsById[postId].isEditing;
-    },
   },
 });
 
 export default slice.reducer;
-
-export const togglePostEdit = (postId) => (dispatch) => {
-  dispatch(slice.actions.togglePostEdit(postId));
-};
 
 export const getPosts =
   ({ userId, page = 1, limit = POSTS_PER_PAGE }) =>
@@ -153,6 +145,8 @@ export const updatePost = (post, user, content, image) => async (dispatch) => {
       toast.success("Post successfully updated");
     } else {
       toast.error("You're not the author");
+      console.log(user._id);
+      console.log(post.author._id);
     }
   } catch (error) {
     dispatch(slice.actions.hasError(error.message));
