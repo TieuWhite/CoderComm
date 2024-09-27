@@ -145,6 +145,9 @@ export const updatePost =
         });
         dispatch(slice.actions.updatePostSuccess(response.data));
         toast.success("Post successfully updated");
+        dispatch(
+          getPosts({ userId: user._id, page: 1, limit: POSTS_PER_PAGE })
+        );
       } else {
         toast.error("You're not the author");
       }
@@ -160,8 +163,9 @@ export const deletePost = (post, user) => async (dispatch) => {
   try {
     if (user._id == post.author._id) {
       const response = await apiService.delete(`/posts/${post._id}`);
+      dispatch(slice.actions.deletePostSuccess(post._id));
       toast.success("Successfully delete post");
-      dispatch(slice.actions.deletePostSuccess(...response.data, post._id));
+      dispatch(getPosts({ userId: user._id, page: 1, limit: POSTS_PER_PAGE }));
       return response;
     } else {
       toast.error("You're not the author");

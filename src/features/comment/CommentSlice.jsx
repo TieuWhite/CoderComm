@@ -103,13 +103,20 @@ export const createComment =
     }
   };
 
-export const deleteComment = (comment, user) => async (dispatch) => {
+export const deleteComment = (comment, user, postId) => async (dispatch) => {
   dispatch(slice.actions.startLoading());
   try {
     if (comment.author._id == user._id) {
       await apiService.delete(`/comments/${comment._id}`);
       dispatch(slice.actions.deleteCommentSuccess());
       toast.success("successfully deleted comment");
+      dispatch(
+        getComments({
+          postId: postId,
+          page: 1,
+          limit: COMMENTS_PER_POST,
+        })
+      );
     } else {
       toast.error("you are not the author of this comment");
     }

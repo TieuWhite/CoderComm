@@ -1,13 +1,23 @@
-import { Box, IconButton, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import ThumbDownAltRoundedIcon from "@mui/icons-material/ThumbDownAltRounded";
 import ThumbUpRoundedIcon from "@mui/icons-material/ThumbUpRounded";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { deleteComment, sendCommentReaction } from "./commentSlice";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useAuth from "../../hooks/useAuth";
 
-function CommentReaction({ comment }) {
+function CommentReaction({ comment, postId }) {
+  const [deleteMenu, setDeleteMenu] = useState(false);
   const dispatch = useDispatch();
 
   const { user } = useAuth();
@@ -25,11 +35,37 @@ function CommentReaction({ comment }) {
     >
       <IconButton
         onClick={() => {
-          dispatch(deleteComment(comment, user));
+          setDeleteMenu(true);
         }}
       >
         <DeleteIcon />
       </IconButton>
+      <Dialog
+        open={deleteMenu}
+        onClose={() => setDeleteMenu(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Are you sure you want to delete this comment?"}
+        </DialogTitle>
+
+        <DialogActions>
+          <Button onClick={() => setDeleteMenu(false)} color="error">
+            No
+          </Button>
+          <Button
+            color="success"
+            onClick={() => {
+              dispatch(deleteComment(comment, user, postId));
+              setDeleteMenu(false);
+            }}
+            autoFocus
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <IconButton
         onClick={() => handleClick("like")}
